@@ -67,14 +67,35 @@ set(CPACK_RPM_PACKAGE_LICENSE "GPLv2")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/System")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  cmake_path(SET QT_PATH NORMALIZE "${Qt6_DIR}../../")
 
   set(CPACK_WIX_UPGRADE_GUID "027D1C8A-E7A5-4754-BB93-B2D45BFDBDC8")
 
+  # TODO RM with legacy WIX Builder
+  cmake_path(SET QT_PATH NORMALIZE "${Qt6_DIR}../../")
+
+  # TODO RM with legacy WIX Builder
   configure_files(
     ${PROJECT_SOURCE_DIR}/deploy/dist/wix
     ${PROJECT_BINARY_DIR}/installer
   )
+
+set(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/wix-banner.png")
+  set(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/wix-dialog.png")
+
+  # Menu Entry
+  set(CPACK_WIX_PROGRAM_MENU_FOLDER "Deskflow")
+  set(CPACK_PACKAGE_EXECUTABLES "deskflow" "Deskflow")
+
+  # Default Install Path
+  cmake_path(SET INSTALL_DIR NORMALIZE "$ENV{PROGRAMFILES}/Deskflow")
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIR})
+
+  # If Wix4+ is installed make a package
+  find_program(WIX_APP wix)
+   if (NOT "${WIX_APP}" STREQUAL "")
+     set(CPACK_WIX_VERSION 4)
+     list(APPEND CPACK_GENERATOR "WIX")
+   endif()
 
   if(CMAKE_SYSTEM_PROCESSOR MATCHES AMD64)
     set(OS_STRING "win-x64")
